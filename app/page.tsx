@@ -15,8 +15,24 @@ export default function Home() {
   const [dishes, setDishes] = useState<Dish[]>([])
 
   useEffect(() => {
-    fetchDishes()
-  }, [])
+  fetchDishes()
+
+  const channel = supabase
+    .channel('dishes-changes')
+    .on(
+      'postgres_changes',
+      { event: '*', schema: 'public', table: 'dishes' },
+      () => {
+        fetchDishes()
+      }
+    )
+    .subscribe()
+
+  return () => {
+    supabase.removeChannel(channel)
+  }
+}, [])
+  
 
   async function fetchDishes() {
     const { data, error } = await supabase.from('dishes').select('*')

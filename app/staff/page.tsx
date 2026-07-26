@@ -1,0 +1,120 @@
+'use client'
+
+import { useEffect, useState } from 'react'
+import { supabase } from '../lib/supabase'
+import { useRouter } from 'next/navigation'
+
+type Dish = {
+  id: number
+  name: string
+  price: number
+  image_url: string
+  is_available: boolean
+}
+
+export default function StaffDashboard() {
+  const [dishes, setDishes] = useState<Dish[]>([])
+  const router = useRouter()
+
+  useEffect(() => {
+    checkAuth()
+    fetchDishes()
+
+    const channel = supabase
+      .channel('dishes-changes')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'dishes' },
+        () => {
+          fetchDishes()
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [])
+
+  async function checkAuth() {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) {
+      router.push('/login')
+    }
+  }
+
+  async function fetchDishes() {
+    const { data, error } = await supabase.from('dishes').select('*')
+    if (error) {
+      console.log('Error fetching dishes:', error)
+    } else {
+      setDishes(data as Dish[])
+    }
+  }
+  async function handleLogout() {
+    await supabase.auth.signOut()
+    router.push('/login')
+  }
+
+  async function toggleAvailability(id: number, currentStatus: boolean) {
+    const { error } = await supabase
+      .from('dishes')
+      .update({ is_available: !currentStatus })
+      .eq('id', id)
+
+    if (error) {
+      console.log('Error updating dish:', error)
+    } else {
+      fetchDishes() // refresh the list after updating
+    }
+  }
+
+  return (
+    <main style={{ padding: '2rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+        <h1 style={{ fontSize: '2rem', margin: 0 }}>Staff Dashboard</h1>
+        <button
+          onClick={handleLogout}
+          style={{ padding: '0.5rem 1rem', borderRadius: '6px', border: 'none', backgroundColor: '#333', color: 'white', cursor: 'pointer' }}
+        >
+          Log Out
+        </button>
+      </div>
+      <div>
+        {dishes.map((dish) => (
+          <div
+            key={dish.id}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              border: '1px solid #ddd',
+              borderRadius: '8px',
+              padding: '1rem',
+              marginBottom: '1rem',
+            }}
+          >
+            <div>
+              <h2 style={{ fontSize: '1.2rem', margin: 0 }}>{dish.name}</h2>
+              <p style={{ margin: '0.3rem 0' }}>₹{dish.price}</p>
+            </div>
+            <button
+              onClick={() => toggleAvailability(dish.id, dish.is_available)}
+              style={{
+                padding: '0.5rem 1rem',
+                borderRadius: '6px',
+                border: 'none',
+                fontWeight: 'bold',
+                cursor: 'pointer',
+                backgroundColor: dish.is_available ? '#4caf50' : '#f44336',
+                color: 'white',
+              }}
+            >
+              {dish.is_available ? 'Available (tap to mark unavailable)' : 'Unavailable (tap to mark available)'}
+            </button>
+          </div>
+        ))}
+      </div>
+    </main>
+  )
+}
