@@ -70,17 +70,53 @@ export default function StaffDashboard() {
   }
 
   return (
-    <main style={{ padding: '2rem' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-        <h1 style={{ fontSize: '2rem', margin: 0 }}>Staff Dashboard</h1>
+    <main
+      style={{
+        padding: 'clamp(1.5rem, 5vw, 3rem)',
+        maxWidth: '900px',
+        margin: '0 auto',
+        backgroundColor: '#FFF8F0',
+        minHeight: '100vh',
+        fontFamily: "'Segoe UI', system-ui, sans-serif",
+      }}
+    >
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '1rem',
+          marginBottom: '2rem',
+        }}
+      >
+        <h1
+          style={{
+            fontSize: 'clamp(1.6rem, 4vw, 2.2rem)',
+            margin: 0,
+            color: '#7A3B1D',
+            fontWeight: 700,
+          }}
+        >
+          👩‍🍳 Staff Dashboard
+        </h1>
         <button
           onClick={handleLogout}
-          style={{ padding: '0.5rem 1rem', borderRadius: '6px', border: 'none', backgroundColor: '#333', color: 'white', cursor: 'pointer' }}
+          style={{
+            padding: '0.6rem 1.3rem',
+            borderRadius: '999px',
+            border: 'none',
+            backgroundColor: '#7A3B1D',
+            color: 'white',
+            fontWeight: 600,
+            cursor: 'pointer',
+          }}
         >
           Log Out
         </button>
       </div>
-      <div>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         {dishes.map((dish) => (
           <div
             key={dish.id}
@@ -88,25 +124,40 @@ export default function StaffDashboard() {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              border: '1px solid #ddd',
-              borderRadius: '8px',
-              padding: '1rem',
-              marginBottom: '1rem',
+              flexWrap: 'wrap',
+              gap: '1rem',
+              backgroundColor: '#FFFFFF',
+              border: '1px solid #F0DFCB',
+              borderRadius: '14px',
+              padding: '1.1rem 1.3rem',
+              boxShadow: '0 4px 12px rgba(122, 59, 29, 0.08)',
             }}
           >
             <div>
-              <h2 style={{ fontSize: '1.2rem', margin: 0 }}>{dish.name}</h2>
-              <p style={{ margin: '0.3rem 0' }}>₹{dish.price}</p>
+              <h2
+                style={{
+                  fontSize: '1.15rem',
+                  margin: 0,
+                  color: '#5A2E15',
+                  fontWeight: 600,
+                }}
+              >
+                {dish.name}
+              </h2>
+              <p style={{ margin: '0.3rem 0 0', color: '#C1622C', fontWeight: 700 }}>
+                ₹{dish.price}
+              </p>
             </div>
             <button
               onClick={() => toggleAvailability(dish.id, dish.is_available)}
               style={{
-                padding: '0.5rem 1rem',
-                borderRadius: '6px',
+                padding: '0.6rem 1.1rem',
+                borderRadius: '999px',
                 border: 'none',
-                fontWeight: 'bold',
+                fontWeight: 600,
+                fontSize: '0.9rem',
                 cursor: 'pointer',
-                backgroundColor: dish.is_available ? '#4caf50' : '#f44336',
+                backgroundColor: dish.is_available ? '#2E7D32' : '#C62828',
                 color: 'white',
               }}
             >
