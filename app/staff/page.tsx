@@ -14,6 +14,9 @@ type Dish = {
 
 export default function StaffDashboard() {
   const [dishes, setDishes] = useState<Dish[]>([])
+  const [newName, setNewName] = useState('')
+  const [newPrice, setNewPrice] = useState('')
+  const [newImageUrl, setNewImageUrl] = useState('')
   const router = useRouter()
 
   useEffect(() => {
@@ -55,7 +58,32 @@ export default function StaffDashboard() {
     await supabase.auth.signOut()
     router.push('/login')
   }
+async function addNewDish(e: React.FormEvent) {
+    e.preventDefault()
 
+    if (!newName || !newPrice) {
+      alert('Please fill in at least the name and price')
+      return
+    }
+
+    const { error } = await supabase.from('dishes').insert([
+      {
+        name: newName,
+        price: parseFloat(newPrice),
+        image_url: newImageUrl,
+        is_available: true,
+      },
+    ])
+
+    if (error) {
+      console.log('Error adding dish:', error)
+    } else {
+      setNewName('')
+      setNewPrice('')
+      setNewImageUrl('')
+      fetchDishes()
+    }
+  }
   async function toggleAvailability(id: number, currentStatus: boolean) {
     const { error } = await supabase
       .from('dishes')
@@ -115,8 +143,42 @@ export default function StaffDashboard() {
           Log Out
         </button>
       </div>
-
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+      {dishes.filter((d) => !d.is_available).length > 0 && (
+        <div style={{ backgroundColor: '#fff3cd', color: '#856404', padding: '1rem', borderRadius: '8px', marginBottom: '1.5rem', fontWeight: 'bold' }}>
+          ⚠️ {dishes.filter((d) => !d.is_available).length} dish(es) currently unavailable — consider restocking soon.
+        </div>
+      )}
+      <form onSubmit={addNewDish} style={{ marginBottom: '2rem', padding: '1rem', border: '1px solid #ddd', borderRadius: '8px' }}>
+        <h2 style={{ fontSize: '1.3rem', marginBottom: '1rem' }}>Add New Dish</h2>
+        <input
+          type="text"
+          placeholder="Dish name"
+          value={newName}
+          onChange={(e) => setNewName(e.target.value)}
+          style={{ display: 'block', width: '100%', padding: '0.6rem', marginBottom: '0.8rem', borderRadius: '6px', border: '1px solid #ccc' }}
+        />
+        <input
+          type="number"
+          placeholder="Price"
+          value={newPrice}
+          onChange={(e) => setNewPrice(e.target.value)}
+          style={{ display: 'block', width: '100%', padding: '0.6rem', marginBottom: '0.8rem', borderRadius: '6px', border: '1px solid #ccc' }}
+        />
+        <input
+          type="text"
+          placeholder="Image URL (optional)"
+          value={newImageUrl}
+          onChange={(e) => setNewImageUrl(e.target.value)}
+          style={{ display: 'block', width: '100%', padding: '0.6rem', marginBottom: '0.8rem', borderRadius: '6px', border: '1px solid #ccc' }}
+        />
+        <button
+          type="submit"
+          style={{ padding: '0.6rem 1.2rem', borderRadius: '6px', border: 'none', backgroundColor: '#2196f3', color: 'white', fontWeight: 'bold', cursor: 'pointer' }}
+        >
+          Add Dish
+        </button>
+      </form>
+      <div>
         {dishes.map((dish) => (
           <div
             key={dish.id}
