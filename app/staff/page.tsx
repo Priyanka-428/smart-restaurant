@@ -108,6 +108,11 @@ async function addNewDish(e: React.FormEvent) {
           Log Out
         </button>
       </div>
+      {dishes.filter((d) => !d.is_available).length > 0 && (
+        <div style={{ backgroundColor: '#fff3cd', color: '#856404', padding: '1rem', borderRadius: '8px', marginBottom: '1.5rem', fontWeight: 'bold' }}>
+          ⚠️ {dishes.filter((d) => !d.is_available).length} dish(es) currently unavailable — consider restocking soon.
+        </div>
+      )}
       <form onSubmit={addNewDish} style={{ marginBottom: '2rem', padding: '1rem', border: '1px solid #ddd', borderRadius: '8px' }}>
         <h2 style={{ fontSize: '1.3rem', marginBottom: '1rem' }}>Add New Dish</h2>
         <input
