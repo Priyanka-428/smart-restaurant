@@ -9,6 +9,7 @@ type Dish = {
   price: number
   image_url: string
   is_available: boolean
+  notify_count: number
 }
 
 export default function Home() {
@@ -132,6 +133,14 @@ export default function Home() {
             >
               {dish.is_available ? '✅ Available' : '❌ Out of Stock'}
             </p>
+            {!dish.is_available && (
+              <button
+                onClick={() => notifyMe(dish.id, dish.notify_count)}
+                style={{ marginTop: '0.5rem', padding: '0.4rem 0.8rem', borderRadius: '6px', border: 'none', backgroundColor: '#ff9800', color: 'white', cursor: 'pointer', fontSize: '0.9rem' }}
+              >
+                🔔 Notify me when available
+              </button>
+            )}
           </div>
         ))}
       </div>

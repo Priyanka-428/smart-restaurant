@@ -10,6 +10,7 @@ type Dish = {
   price: number
   image_url: string
   is_available: boolean
+  notify_count: number
 }
 
 export default function StaffDashboard() {
@@ -85,9 +86,19 @@ async function addNewDish(e: React.FormEvent) {
     }
   }
   async function toggleAvailability(id: number, currentStatus: boolean) {
+    const newStatus = !currentStatus
+    const updateData: { is_available: boolean; notify_count?: number } = {
+      is_available: newStatus,
+    }
+
+    // Reset notify count when marking a dish available again
+    if (newStatus === true) {
+      updateData.notify_count = 0
+    }
+
     const { error } = await supabase
       .from('dishes')
-      .update({ is_available: !currentStatus })
+      .update(updateData)
       .eq('id', id)
 
     if (error) {
@@ -195,20 +206,14 @@ async function addNewDish(e: React.FormEvent) {
               boxShadow: '0 4px 12px rgba(122, 59, 29, 0.08)',
             }}
           >
-            <div>
-              <h2
-                style={{
-                  fontSize: '1.15rem',
-                  margin: 0,
-                  color: '#5A2E15',
-                  fontWeight: 600,
-                }}
-              >
-                {dish.name}
-              </h2>
-              <p style={{ margin: '0.3rem 0 0', color: '#C1622C', fontWeight: 700 }}>
-                ₹{dish.price}
-              </p>
+           <div>
+              <h2 style={{ fontSize: '1.2rem', margin: 0 }}>{dish.name}</h2>
+              <p style={{ margin: '0.3rem 0' }}>₹{dish.price}</p>
+              {dish.notify_count > 0 && (
+                <p style={{ margin: 0, fontSize: '0.85rem', color: '#ff9800', fontWeight: 'bold' }}>
+                  🔔 {dish.notify_count} customer(s) waiting
+                </p>
+              )}
             </div>
             <button
               onClick={() => toggleAvailability(dish.id, dish.is_available)}
