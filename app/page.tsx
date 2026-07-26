@@ -43,6 +43,20 @@ export default function Home() {
     }
   }
 
+  async function notifyMe(id: number, currentCount: number) {
+    const { error } = await supabase
+      .from('dishes')
+      .update({ notify_count: currentCount + 1 })
+      .eq('id', id)
+
+    if (error) {
+      console.log('Error updating notify count:', error)
+    } else {
+      alert("We'll let the kitchen know you're interested!")
+      fetchDishes()
+    }
+  }
+
   return (
     <main
       style={{
@@ -136,7 +150,17 @@ export default function Home() {
             {!dish.is_available && (
               <button
                 onClick={() => notifyMe(dish.id, dish.notify_count)}
-                style={{ marginTop: '0.5rem', padding: '0.4rem 0.8rem', borderRadius: '6px', border: 'none', backgroundColor: '#ff9800', color: 'white', cursor: 'pointer', fontSize: '0.9rem' }}
+                style={{
+                  marginTop: '0.6rem',
+                  padding: '0.45rem 0.9rem',
+                  borderRadius: '999px',
+                  border: 'none',
+                  backgroundColor: '#C1622C',
+                  color: 'white',
+                  cursor: 'pointer',
+                  fontSize: '0.85rem',
+                  fontWeight: 600,
+                }}
               >
                 🔔 Notify me when available
               </button>
